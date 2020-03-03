@@ -27,10 +27,15 @@ bool CAccountDBCache::GetAccount(const CRegID &regId, CAccount &account) const {
     if (regId.IsEmpty())
         return false;
 
+    printf("regId.ToRawString()=%s", regId.ToRawString());
+
     CKeyID keyId;
     if (regId2KeyIdCache.GetData(regId.ToRawString(), keyId)) {
+        printf("got keyId=%s", keyId.ToAddress());
+
         return accountCache.GetData(keyId, account);
     }
+    printf("failed to GetData from regId")
 
     return false;
 }
@@ -95,18 +100,18 @@ bool CAccountDBCache::GetKeyId(const CRegID &regId, CKeyID &keyId) const {
 bool CAccountDBCache::GetKeyId(const CUserID &userId, CKeyID &keyId) const {
     if (userId.type() == typeid(CRegID)) {
         return GetKeyId(userId.get<CRegID>(), keyId);
-    } 
+    }
 
     if (userId.type() == typeid(CPubKey)) {
         keyId = userId.get<CPubKey>().GetKeyId();
         return true;
-    } 
-    
+    }
+
     if (userId.type() == typeid(CKeyID)) {
         keyId = userId.get<CKeyID>();
         return true;
-    } 
-    
+    }
+
     if (userId.type() == typeid(CNullID)) {
         return ERRORMSG("GetKeyId: userId can't be of CNullID type");
     }
